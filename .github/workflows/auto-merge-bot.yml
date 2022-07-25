@@ -1,4 +1,4 @@
-on: [ pull_request_target ]
+on: [ pull_request ]
 name: Request Editors
 jobs:
   auto_merge_bot:
@@ -23,7 +23,7 @@ jobs:
         uses: ethereum/EIP-Bot@e3dbec627f8c7a5bdc33ca19970e5f9c4af9b626 # master
         id: auto-merge-bot
         with:
-          GITHUB-TOKEN: ${{ secrets.TOKEN }} 
+          GITHUB-TOKEN: ${{ secrets.GITHUB_TOKEN }} 
           CORE_EDITORS: '@MicahZoltu,@lightclient,@axic,@gcolvin,@SamWilsn,@Pandapip1'
           ERC_EDITORS: '@lightclient,@axic,@SamWilsn,@Pandapip1'
           NETWORKING_EDITORS: '@MicahZoltu,@lightclient,@axic,@SamWilsn'
