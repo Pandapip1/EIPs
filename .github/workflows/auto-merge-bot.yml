@@ -36,7 +36,7 @@ jobs:
       
       - name: Upload Neutral Status
         id: upload-status-neutral
-        run: always() && steps.auto-merge-bot.outcome == 'failure'
+        if: always() && steps.auto-merge-bot.outcome == 'failure'
         uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -45,7 +45,7 @@ jobs:
       
       - name: Upload Non-Neutral Status
         id: upload-status-success
-        run: always() && steps.auto-merge-bot.outcome != 'failure'
+        if: always() && steps.auto-merge-bot.outcome != 'failure'
         uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
