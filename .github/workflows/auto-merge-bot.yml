@@ -8,7 +8,7 @@ jobs:
         uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          id: auto-merge-bot
+          name: Editor Approval
           status: in_progress
 
       - name: Checkout
@@ -39,7 +39,7 @@ jobs:
         uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          id: auto-merge-bot
+          name: Editor Approval
           conclusion: neutral
       
       - name: Upload Non-Neutral Status
@@ -48,5 +48,5 @@ jobs:
         uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          id: auto-merge-bot
+          name: Editor Approval
           conclusion: ${{ steps.auto-merge-bot.outcome }}
