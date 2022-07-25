@@ -1,9 +1,8 @@
 on: [ pull_request_target ]
-name: Auto-Merge Bot
+name: Request Editors
 jobs:
   auto_merge_bot:
     runs-on: ubuntu-latest
-    name: EIP Auto-Merge Bot
     steps:
       - name: Upload In Progress Status
         uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
@@ -11,3 +10,43 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           id: auto-merge-bot
           status: in_progress
+
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      
+      - name: auto-merge-bot
+        uses: ethereum/EIP-Bot@e3dbec627f8c7a5bdc33ca19970e5f9c4af9b626 # master
+        id: auto-merge-bot
+        with:
+          GITHUB-TOKEN: ${{ secrets.TOKEN }} 
+          CORE_EDITORS: '@MicahZoltu,@lightclient,@axic,@gcolvin,@SamWilsn,@Pandapip1'
+          ERC_EDITORS: '@lightclient,@axic,@SamWilsn,@Pandapip1'
+          NETWORKING_EDITORS: '@MicahZoltu,@lightclient,@axic,@SamWilsn'
+          INTERFACE_EDITORS: '@lightclient,@axic,@SamWilsn,@Pandapip1'
+          META_EDITORS: '@lightclient,@axic,@gcolvin,@SamWilsn,@Pandapip1'
+          INFORMATIONAL_EDITORS: '@lightclient,@axic,@gcolvin,@SamWilsn,@Pandapip1'
+          MAINTAINERS: '@alita-moore,@mryalamanchi'
+        continue-on-error: true
+      
+      - name: Upload Neutral Status
+        id: upload-status-neutral
+        if: always() && steps.auto-merge-bot.outcome == 'failure'
+        uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          id: auto-merge-bot
+          conclusion: neutral
+      
+      - name: Upload Non-Neutral Status
+        id: upload-status-success
+        if: always() && steps.auto-merge-bot.outcome != 'failure'
+        uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          id: auto-merge-bot
+          conclusion: ${{ steps.auto-merge-bot.outcome }}
