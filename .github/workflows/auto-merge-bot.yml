@@ -4,7 +4,6 @@ jobs:
   auto_merge_bot:
     runs-on: ubuntu-latest
     name: EIP Auto-Merge Bot
-    if: github.repository == 'ethereum/eips' || always() # For testing purposes
     steps:
       - name: Upload In Progress Status
         uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
