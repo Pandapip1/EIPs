@@ -4,7 +4,7 @@ jobs:
   auto_merge_bot:
     runs-on: ubuntu-latest
     name: EIP Auto-Merge Bot
-    if: github.repository == 'ethereum/eips' || github.repository == 'pandapip1/eips' # For testing purposes
+    if: github.repository == 'ethereum/eips' || always() # For testing purposes
     steps:
       - name: Upload In Progress Status
         uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
@@ -15,10 +15,12 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
+      
       - name: Setup Node.js Environment
         uses: actions/setup-node@v2
         with:
           node-version: '14'
+      
       - name: auto-merge-bot
         uses: ethereum/EIP-Bot@e3dbec627f8c7a5bdc33ca19970e5f9c4af9b626 # master
         id: auto-merge-bot
