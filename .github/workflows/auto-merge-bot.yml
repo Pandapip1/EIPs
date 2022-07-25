@@ -9,9 +9,16 @@ jobs:
     name: EIP Auto Merge Bot
     
     runs-on: ubuntu-latest
-    if: github.repository == 'ethereum/eips'
+    if: github.repository == 'ethereum/eips' || github.repository == 'pandapip1/eips' # For testing purposes
     
     steps:
+      - name: Upload In Progress Status
+        uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          id: auto-merge-bot
+          status: in_progress
+
       - name: Checkout
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
@@ -32,3 +39,22 @@ jobs:
           META_EDITORS: '@lightclient,@axic,@gcolvin,@SamWilsn,@Pandapip1'
           INFORMATIONAL_EDITORS: '@lightclient,@axic,@gcolvin,@SamWilsn,@Pandapip1'
           MAINTAINERS: '@alita-moore,@mryalamanchi'
+        continue-on-error: true
+      
+      - name: Upload Neutral Status
+        id: upload-status-neutral
+        run: always() && steps.auto-merge-bot.outcome == 'failure'
+        uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          id: auto-merge-bot
+          conclusion: neutral
+      
+      - name: Upload Non-Neutral Status
+        id: upload-status-success
+        run: always() && steps.auto-merge-bot.outcome != 'failure'
+        uses: dflydev/check-runs-action@2ca9762b84cb405cff07f16e925e1f9434532c37
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          id: auto-merge-bot
+          conclusion: ${{ steps.auto-merge-bot.outcome }}
