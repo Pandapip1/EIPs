@@ -4,7 +4,7 @@ jobs:
   auto_merge_bot:
     runs-on: ubuntu-latest
     name: EIP Auto-Merge Bot
-    if: github.repository == 'ethereum/eips' || github.repository == 'Pandapip1/eips`
+    if: github.repository == 'ethereum/eips' || github.repository == 'Pandapip1/eips'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
