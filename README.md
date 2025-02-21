@@ -1,5 +1,7 @@
 # Ethereum Improvement Proposals (EIPs)
 
+> **_ATTENTION_**: The EIPs repository has recently [undergone](https://github.com/ethereum/EIPs/pull/7206) a separation of ERCs and EIPs. ERCs are now accessible at [https://github.com/ethereum/ercs](https://github.com/ethereum/ercs). All new ERCs and updates to existing ones must be directed at this new repository. The editors apologize for this inconvenience.
+
 The goal of the EIP project is to standardize and provide high-quality documentation for Ethereum itself and conventions built upon it. This repository tracks past and ongoing improvements to Ethereum in the form of Ethereum Improvement Proposals (EIPs). [EIP-1](https://eips.ethereum.org/EIPS/eip-1) governs how EIPs are published.
 
 The [status page](https://eips.ethereum.org/) tracks and lists EIPs, which can be divided into the following categories:
@@ -27,7 +29,7 @@ Consider any document not published at <https://eips.ethereum.org/> as a working
 
 All pull requests in this repository must pass automated checks before they can be automatically merged:
 
-- [eip-review-bot](https://github.com/Pandapip1/eip-review-bot/) determines when PRs can be automatically merged [^1]
+- [eip-review-bot](https://github.com/ethereum/eip-review-bot/) determines when PRs can be automatically merged [^1]
 - EIP-1 rules are enforced using [`eipw`](https://github.com/ethereum/eipw)[^2]
 - HTML formatting and broken links are enforced using [HTMLProofer](https://github.com/gjtorikian/html-proofer)[^2]
 - Spelling is enforced with [CodeSpell](https://github.com/codespell-project/codespell)[^2]
@@ -39,9 +41,11 @@ All pull requests in this repository must pass automated checks before they can 
 
 It is possible to run the EIP validator locally:
 
+Make sure to add cargo's `bin` directory to your environment (typically `$HOME/.cargo/bin` in your `PATH` environment variable)
+
 ```sh
-cargo install eipv
-eipv <INPUT FILE / DIRECTORY>
+cargo install eipw
+eipw --config ./config/eipw.toml <INPUT FILE / DIRECTORY>
 ```
 
 ## Build the status page locally
@@ -50,13 +54,13 @@ eipv <INPUT FILE / DIRECTORY>
 
 1. Open Terminal.
 
-2. Check whether you have Ruby 2.1.0 or higher installed:
+2. Check whether you have Ruby 3.1.4 installed. Later [versions are not supported](https://stackoverflow.com/questions/14351272/undefined-method-exists-for-fileclass-nomethoderror).
 
    ```sh
    ruby --version
    ```
 
-3. If you don't have Ruby installed, install Ruby 2.1.0 or higher.
+3. If you don't have Ruby installed, install Ruby 3.1.4.
 
 4. Install Bundler:
 

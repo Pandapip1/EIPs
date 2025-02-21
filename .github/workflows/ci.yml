@@ -31,7 +31,7 @@ jobs:
           echo $MERGE_SHA > ./pr/merge_sha
 
       - name: Upload PR Number
-        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: pr_number
           path: pr/
@@ -41,23 +41,47 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: Checkout EIP Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-
-      - name: Install Ruby
-        uses: ruby/setup-ruby@08245253a76fa4d1e459b7809579c62bd9eb718a
+      - name: Checkout EIPs
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ruby-version: 2.6.0
-          bundler-cache: true
-
+          repository: ethereum/EIPs
+          path: ''
+      - name: Checkout ERCs
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ethereum/ERCs
+          path: ERCs
+      - name: Merge Repos
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/ERCs/ERCS
+          mkdir -p $GITHUB_WORKSPACE/ERCs/EIPS
+          cp -rp $GITHUB_WORKSPACE/ERCs/ERCS/. $GITHUB_WORKSPACE/EIPS
+          cp -rp $GITHUB_WORKSPACE/ERCs/EIPS/. $GITHUB_WORKSPACE/EIPS
+          cp -rp $GITHUB_WORKSPACE/ERCs/assets/. $GITHUB_WORKSPACE/assets
+          cd $GITHUB_WORKSPACE/EIPS
+          find . -name "erc-*.md" -type f -exec sh -c 'echo mv "$1" "$(echo "$1" | sed s/erc/eip/)"' _ {} \; | sh
+          cd $GITHUB_WORKSPACE/assets
+          find . -name "erc-*" -type d -exec sh -c 'echo mv "$1" "$(echo "$1" | sed s/erc/eip/)"' _ {} \; | sh
+          cd $GITHUB_WORKSPACE
+          rm -rf ERCs
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@f26937343756480a8cb3ae1f623b9c8d89ed6984 # v1.196.0
+        with:
+          ruby-version: '3.1' # Not needed with a .ruby-version file
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          cache-version: 0 # Increment this number if you need to re-download cached gems
+      - name: Build with Jekyll
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+          
       - name: Build Website
         run: |
           bundle exec jekyll doctor
           bundle exec jekyll build
 
       - name: HTML Proofer
-        run: bundle exec htmlproofer ./_site --check-html --check-opengraph --report-missing-names --log-level=:debug --assume-extension --empty-alt-ignore --timeframe=6w --disable-external
-
+        run: bundle exec htmlproofer --allow-missing-href --disable-external --assume-extension '.html' --log-level=:info --cache='{"timeframe":{"external":"6w"}}' --checks 'Links,Images,Scripts,OpenGraph' --no-check-sri --ignore-empty-alt --no-enforce_https ./_site
       - name: DNS Validator
         run: bundle exec github-pages health-check
 
@@ -67,10 +91,10 @@ jobs:
     
     steps:
       - name: Checkout EIP Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@47fbe2df0ad0e27efb67a70beac3555f192b062f
         
       - name: Link Checker
-        uses: gaurav-nelson/github-action-markdown-link-check@0a51127e9955b855a9bbfa1ff5577f1d1338c9a5
+        uses: gaurav-nelson/github-action-markdown-link-check@d53a906aa6b22b8979d33bc86170567e619495ec
         with:
           config-file: config/mlc_config.json
           use-quiet-mode: no
@@ -83,7 +107,7 @@ jobs:
 
     steps:
       - name: Checkout EIP Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@47fbe2df0ad0e27efb67a70beac3555f192b062f
 
       - name: Get Changed Files
         id: changed
@@ -96,7 +120,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run CodeSpell
-        uses: codespell-project/actions-codespell@2391250ab05295bddd51e36a8c6295edb6343b0e
+        uses: codespell-project/actions-codespell@57beb9f38f49d773d641ac555d1565c3b6a59938
         if: steps.changed.outcome == 'success'
         with:
           check_filenames: true
@@ -110,20 +134,21 @@ jobs:
 
     steps:
       - name: Checkout EIP Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@47fbe2df0ad0e27efb67a70beac3555f192b062f
 
-      - uses: ethereum/eipw-action@211d0ded0e28bf2dee38a1851de87fa8ffe1158a
+      - uses: ethereum/eipw-action@be3fa642ec311d0b8e1fdb811e5c9b4ada3d3d93
         id: eipw
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           unchecked: 1, 5069, 5757
+          options-file: config/eipw.toml
 
   markdownlint:
     name: Markdown Linter
     runs-on: ubuntu-latest
     steps:
       - name: Checkout EIP Repository
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@47fbe2df0ad0e27efb67a70beac3555f192b062f
 
       - name: Get Changed Files
         id: changed
@@ -136,7 +161,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lint
-        uses: DavidAnson/markdownlint-cli2-action@16d9da45919c958a8d1ddccb4bd7028e8848e4f1
+        uses: DavidAnson/markdownlint-cli2-action@f5cf187ef11bd3a68a127321b794aa252ff23019
         if: steps.changed.outcome == 'success'
         with:
           command: config
